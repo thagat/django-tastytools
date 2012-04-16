@@ -38,6 +38,11 @@ class Related(object):
     Full = "FULL"
 
 
+class ResourceMockupNotSet(Exception):
+    """ Raised when there is no mockup set for this resource """
+    pass
+
+
 class TestData(object):
 
     def __init__(self, api, force=None, related=None, id=None):
@@ -120,7 +125,8 @@ class TestData(object):
             uri = resource.get_resource_uri(model)
             res = model
         else:
-            (uri, res) = resource.create_test_resource(force, id=id, example=example)
+            (uri, res) = resource.create_test_resource(
+                    force, id=id, example=example)
 
         if related == Related.Uri:
             return uri
@@ -163,6 +169,7 @@ class ResourceTestData(object):
 
     def _post(self, example=False):
         '''Returns sample POST data for the resource.'''
+        print "post"
 
         return self.sample_data(related=Related.Uri, example=example).data
 
@@ -173,15 +180,16 @@ class ResourceTestData(object):
 
     def _get(self, example=False):
         """Returns sample GET data for the resource."""
+        print "get"
         (location, model) = self.create_test_resource(example=example)
         return self.api.dehydrate(resource=self.resource, obj=model)
-
 
     def create_test_resource(self, force={}, example=False, *args, **kwargs):
         '''Creates a test resource and obtains it's URI
         and related object'''
 
-        model = self.create_test_model(force=force, example=example, *args, **kwargs)
+        model = self.create_test_model(force=force, example=example,
+                *args, **kwargs)
         bundle = self.resource.build_bundle(obj=model)
         location = self.resource.get_resource_uri(bundle)
         return location, bundle.obj
@@ -210,7 +218,8 @@ class ResourceTestData(object):
                 continue
             except DatabaseError:
                 try:
-                    call_command('syncdb', migrate=True, database=db, interactive=False)
+                    call_command('syncdb', migrate=True, database=db,
+                            interactive=False)
                     model.save(using=db)
                 except ConnectionDoesNotExist:
                     continue
@@ -241,6 +250,17 @@ class ResourceTestData(object):
             cached_model.save()
             return cached_model
 
+        # first we try to use the mockup set by the user
+        try:
+            mockup = self.get_mockup()
+        except ResourceMockupNotSet:
+            pass
+        else:
+            model = mockup.create_one(commit=False)
+            self.save_test_obj(model, example=example)
+            return model
+
+        # mockups were not set by the user, so now user the user data
         force = force or {}
 
         model_class = self.resource._meta.object_class
@@ -266,12 +286,12 @@ class ResourceTestData(object):
                 field_obj = getattr(model_class, field)
                 is_m2m = isinstance(field_obj,
                     ForeignRelatedObjectsDescriptor)
-                is_m2m = is_m2m or isinstance(field_obj, ManyRelatedObjectsDescriptor)
+                is_m2m = is_m2m or isinstance(
+                        field_obj, ManyRelatedObjectsDescriptor)
 
             if is_m2m:
                 m2m[field] = data[field]
                 del valid_data[field]
-
 
         model = model_class(**valid_data)
 
@@ -287,26 +307,43 @@ class ResourceTestData(object):
         return model
 
     #@property
-    def sample_data(self, related=Related.Model, force=False, id=None, example=False):
+    def sample_data(self, related=Related.Model, force=False, id=None,
+            example=False):
         '''Returns the full a full set of data as an _meta.testdata for
         interacting with the resource
 
         '''
+        # first we try to use the mockup set by the user
+        data = TestData(self.api, force, related)
+
+        try:
+            mockup = self.get_mockup()
+        except ResourceMockupNotSet:
+            pass
+        else:
+            model = mockup.create_one(commit=False)
+            data.data = self.api.dehydrate(resource=self.resource, obj=model)
+            return data
+
+        # mockups were not set by the user, so now user the user data
         model_class = self.resource._meta.object_class
 
         resource_fields = self.resource.fields
 
-        data = TestData(self.api, force, related)
+        data = self.get_data(data)
 
         fields = model_class._meta.fields
         for field in fields:
             if field.name in self.resource._meta.excludes:
                 continue
+            if field.name in data.data:
+                continue
             if isinstance(field, ForeignKey):
                 if field.name in resource_fields:
                     resource_field = resource_fields[field.name]
-                    data.set(field.name, example=example,
-                            resource=resource_field.to._meta.resource_name)
+                    data.set(field.name,
+                        resource=resource_field.to_class()._meta.resource_name,
+                        example=example)
             else:
                 if type(field) in FIELDCLASS_TO_GENERATOR:
                     generator_class = FIELDCLASS_TO_GENERATOR[type(field)]
@@ -317,8 +354,10 @@ class ResourceTestData(object):
                     value = generator.get_value()
                     if value is not None:
                         data.set(field.name, value)
-
-        return self.get_data(data)
+        return data
 
     def get_data(self, data):
         return data
+
+    def get_mockup(self):
+        raise ResourceMockupNotSet('No mockup set')
