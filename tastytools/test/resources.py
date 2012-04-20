@@ -169,7 +169,6 @@ class ResourceTestData(object):
 
     def _post(self, example=False):
         '''Returns sample POST data for the resource.'''
-        print "post"
 
         return self.sample_data(related=Related.Uri, example=example).data
 
@@ -180,7 +179,7 @@ class ResourceTestData(object):
 
     def _get(self, example=False):
         """Returns sample GET data for the resource."""
-        print "get"
+
         (location, model) = self.create_test_resource(example=example)
         return self.api.dehydrate(resource=self.resource, obj=model)
 
