@@ -1,14 +1,13 @@
-Welcome to tastytools's documentation!
+Welcome to tastytools’s documentation!
 ======================================
 
-Tastytools is a set for usefull tools to develop a quality tastypie webservice
+Tastytools is a set of useful tools to develop a quality tastypie webservice
 API.
 
-It's main features are automatic documentation and the generation of Hygiene
-tests (tests that ensure the pressence of certain features that that do not
+It’s main features are automatic documentation and the generation of Hygiene
+tests (tests that ensure the presence of certain features that that do not
 give positive satisfaction, though dissatisfaction results from their absence).
-For example it tests the pressence of help fields
-An example in the case of an API, is a help text on the fields
+For example it tests the presence of help text on the API fields.
 
 .. toctree::
    :maxdepth: 2
@@ -42,9 +41,9 @@ Assuming you have a tastypie api and have already read the `tastypie docs`_:
       (r'^tastytools/', include('tastytools.urls'), {'api_name': api.api_name}),
     )
 
-4. got to http://localhost:8000/tastytools/v1/.
+4. go to http://localhost:8000/tastytools/v1/.
 
-As you can see, now you have documentation for anyone who wants to consume
+As you can see, you now have documentation for anyone who wants to consume
 your api resources!
 
 Requirements

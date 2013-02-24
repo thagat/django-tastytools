@@ -13,10 +13,10 @@ Required
 * django-tastypie (http://django-tastypie.readthedocs.org/)
 
 
-What iss It Look Like?
+What Does It Look Like?
 ======================
 
-Asuming you have a tastypie implemented api, a basic example looks like::
+Assuming you have a tastypie implemented api, a basic example looks like::
 
     # myapp/api/tools.py
     # ============

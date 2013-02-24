@@ -1,11 +1,10 @@
-
 ===============================
 Getting Started with TastyTools
 ===============================
 
-For example purposes, we'll be adding tools to the simple blog application that Tasytypie has in it's own tutorial.
+For example purposes, we’ll be adding tools to the simple blog application that Tasytypie has in its own tutorial.
 
-Here is the code we'll be using (taken from the `tastypie quickstart`_ and `tastypie tutorial`_  with a few minor changes).
+Here is the code we’ll be using (taken from the `tastypie quickstart`_ and `tastypie tutorial`_  with a few minor changes).
 
 ``myapp/models.py``::
 
@@ -99,7 +98,7 @@ the latest api docs.
 For our simple application, we'll create a file: ``myapp/api/tools.py`` (in 
 the api folder created within your app in the `tastypie quickstart`_).
 
-First thing we need to do is move much of the tastypie code form the urls.py
+The first thing we need to do is to move much of the tastypie code form the urls.py
 file to the new tools.py file::
 
     # myapp/api/tools.py
@@ -111,10 +110,10 @@ file to the new tools.py file::
     v1_api.register(UserResource())
 
 
-Notice that our Api object does not import form tastipie anymore, we'll be
-using from now on the tastytools Api class, that inherits from the tastypie Api class.
+Notice that our Api object does not import from tastypie anymore, from now on we’ll be
+using the tastytools Api class, that inherits from the tastypie Api class.
 
-Our urls.py file now needs to import the api object to keep working, and we'll
+Our urls.py file now needs to import the api object to keep working, and we’ll
 add a new line to generate our documentation::
 
     # urls.py
@@ -129,13 +128,14 @@ add a new line to generate our documentation::
     )
 
 Now you can go check your auto generated documentation at /tastytools/doc/
-Neat right? it's now easy to navigate through your api resources.
+Neat right? it’s now easy to navigate through your api resources.
 
 Generating Example Data for your Tastypie API
 =============================================
 
 Every great documentation has examples, so tastytools helps you with this by
-generating example data:
+generating example data.
+
 Implement a Test Data class, it's the one in charge of creating data for our tests::
 
     # myapp/api/tools.py
@@ -184,7 +184,7 @@ readability of your api::
 
 Remember to add this test.py file to the set of tests your application tests 
 by importing it to your tests.py file or your tests/__init__.py file if you
-have your tests in a folder
+have your tests in a folder.
 
 .. note::
 
